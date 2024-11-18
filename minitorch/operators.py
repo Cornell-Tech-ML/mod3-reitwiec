@@ -91,7 +91,7 @@ def neg(x: float) -> float:
         The negative of the number.
 
     """
-    return -1.0 * x
+    return float(- 1.0 * x)
 
 
 def lt(x: float, y: float) -> float:
@@ -157,7 +157,7 @@ def is_close(x: float, y: float) -> float:
         True if x is close to y, False otherwise.
 
     """
-    return abs(x - y) < (10**-2)
+    return abs(x - y) < 1e-2
 
 
 def sigmoid(x: float) -> float:
@@ -172,9 +172,7 @@ def sigmoid(x: float) -> float:
         The sigmoid of the number.
 
     """
-    if x >= 0:
-        return 1.0 / (1.0 + math.exp(-x))
-    return math.exp(x) / (1.0 + math.exp(x))
+    return 1.0 / (1.0 + math.exp(-x)) if x >= 0 else math.exp(x) / (1.0 + math.exp(x))
 
 
 def relu(x: float) -> float:
@@ -189,7 +187,7 @@ def relu(x: float) -> float:
         The ReLU of the number.
 
     """
-    return max(0.0, x)
+    return x if x > 0.0 else 0.0
 
 
 def log(x: float) -> float:

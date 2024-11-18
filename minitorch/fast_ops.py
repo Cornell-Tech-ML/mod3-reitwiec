@@ -169,8 +169,8 @@ def tensor_map(
         in_strides: Strides,
     ) -> None:
         # TODO: Implement for Task 3.1.
-        direct_mapping = len(out_strides) == len(in_strides) and (out_strides == in_strides).any() and (out_shape == in_shape).any()
-        if not direct_mapping:
+        direct_mapping = len(out_strides) != len(in_strides) or (out_strides != in_strides).any() or (out_shape != in_shape).any()
+        if direct_mapping:
             for i in prange(len(out)):
                 out_idx = np.empty(MAX_DIMS, np.int32)
                 in_idx = np.empty(MAX_DIMS, np.int32)
@@ -222,8 +222,8 @@ def tensor_zip(
         b_strides: Strides,
     ) -> None:
         # TODO: Implement for Task 3.1.
-        direct_mapping = len(out_strides) == len(a_strides) and len(out_strides) == len(b_strides) and (out_strides == a_strides).any() and (out_strides == b_strides).any() and (out_shape == a_shape).any() and (out_shape == b_shape).any()
-        if not direct_mapping:
+        direct_mapping = (len(out_strides) != len(a_strides) or len(out_strides) != len(b_strides) or (out_strides != a_strides).any() or (out_strides != b_strides).any() or (out_shape != a_shape).any() or (out_shape != b_shape).any())
+        if direct_mapping:
             for i in prange(len(out)):
                 out_idx = np.empty(MAX_DIMS, np.int32)
                 a_idx = np.empty(MAX_DIMS, np.int32)
@@ -233,9 +233,9 @@ def tensor_zip(
                 broadcast_index(out_idx, out_shape, b_shape, b_idx)
                 a_posn = index_to_position(a_idx, a_strides)
                 b_posn = index_to_position(b_idx, b_strides)
-                out_posn = index_to_position(out_idx, out_strides)
                 a_data = a_storage[a_posn]
                 b_data = b_storage[b_posn]
+                out_posn = index_to_position(out_idx, out_strides)
                 out[out_posn] = fn(a_data, b_data)
             return
         for i in prange(len(out)):
