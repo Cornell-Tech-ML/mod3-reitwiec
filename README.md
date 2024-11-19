@@ -352,6 +352,8 @@ python3.12 project/run_fast_tensor.py --BACKEND gpu --HIDDEN 100 --DATASET split
 
 *Average time per epoch 1.3685702180862427 (for 500 epochs)*
 
+<details>
+  <summary>View log</summary>
 ```
 Epoch  0  loss  6.979193031077563 correct 35
 Epoch  1  time  1.5539555549621582
@@ -903,6 +905,7 @@ Epoch  497  time  1.3175673484802246
 Epoch  498  time  1.4195432662963867
 Epoch  499  time  1.8735270500183105
 ```
+</details>
 
 ## Simple Dataset
 
@@ -910,6 +913,8 @@ python3.12 project/run_fast_tensor.py --BACKEND gpu --HIDDEN 100 --DATASET simpl
 
 *Average time per epoch 1.3617659120559693 (for 500 epochs)*
 
+<details>
+  <summary>View log</summary>
 ```
 Epoch  0  loss  8.517706358137016 correct 38
 Epoch  1  time  1.2621335983276367
@@ -1461,6 +1466,7 @@ Epoch  497  time  1.2970070838928223
 Epoch  498  time  1.262770175933838
 Epoch  499  time  1.2419812679290771
 ```
+</details>
 
 ## XOR Dataset
 
@@ -1468,6 +1474,8 @@ python3.12 project/run_fast_tensor.py --BACKEND gpu --HIDDEN 100 --DATASET xor -
 
 *Average time per epoch 1.356607183933258 (for 500 epochs)*
 
+<details>
+<summary>View log</summary>
 ```
 Epoch  0  loss  6.887350291036325 correct 41
 Epoch  1  time  1.2633967399597168
@@ -2019,3 +2027,4 @@ Epoch  497  time  1.300053596496582
 Epoch  498  time  1.2520594596862793
 Epoch  499  time  1.2403647899627686
 ```
+</details>
