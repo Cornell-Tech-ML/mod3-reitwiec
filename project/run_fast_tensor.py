@@ -1,5 +1,4 @@
-import random
-
+import random, time
 import numba
 
 import minitorch
@@ -12,6 +11,12 @@ if numba.cuda.is_available():
 
 def default_log_fn(epoch, total_loss, correct, losses):
     print("Epoch ", epoch, " loss ", total_loss, "correct", correct)
+
+
+def time_log_fn(epoch, start_time):
+     time_elapsed = time.time() - start_time
+     print("Epoch ", epoch, " time ", time_elapsed)
+     return time_elapsed
 
 
 def RParam(*shape, backend):
@@ -65,12 +70,14 @@ class FastTrain:
         return self.model.forward(minitorch.tensor(X, backend=self.backend))
 
     def train(self, data, learning_rate, max_epochs=500, log_fn=default_log_fn):
+
         self.model = Network(self.hidden_layers, self.backend)
         optim = minitorch.SGD(self.model.parameters(), learning_rate)
         BATCH = 10
         losses = []
-
+        total_epoch_time = 0.0
         for epoch in range(max_epochs):
+            start_time = time.time()
             total_loss = 0.0
             c = list(zip(data.X, data.y))
             random.shuffle(c)
@@ -93,6 +100,9 @@ class FastTrain:
                 optim.step()
 
             losses.append(total_loss)
+            # Time Logging
+            curr_epoch_time = time_log_fn(epoch, start_time)
+            total_epoch_time += curr_epoch_time
             # Logging
             if epoch % 10 == 0 or epoch == max_epochs:
                 X = minitorch.tensor(data.X, backend=self.backend)
@@ -101,6 +111,7 @@ class FastTrain:
                 y2 = minitorch.tensor(data.y)
                 correct = int(((out.detach() > 0.5) == y2).sum()[0])
                 log_fn(epoch, total_loss, correct, losses)
+        print(f'Average time per epoch {total_epoch_time/max_epochs} (for {max_epochs} epochs)')
 
 
 if __name__ == "__main__":
