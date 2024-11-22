@@ -30,6 +30,7 @@ Fn = TypeVar("Fn")
 
 
 def njit(fn: Fn, **kwargs: Any) -> Fn:
+    """numba jit function implementation"""
     return _njit(inline="always", **kwargs)(fn)  # type: ignore
 
 

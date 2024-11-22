@@ -4,17 +4,19 @@ import minitorch
 import time
 import sys
 import numpy as np
+from .minitorch.tensor_ops import TensorBackend
 
 FastTensorBackend = minitorch.TensorBackend(minitorch.FastOps)
 GPUBackend = minitorch.TensorBackend(minitorch.CudaOps)
 
 
-def run_matmul(backend, size=16) -> None:
+def run_matmul(backend:TensorBackend, size:int=16) -> None:
+    "Rrun matrix multiplication"
     batch_size = 2
 
     x = minitorch.rand((batch_size, size, size), backend=backend)
     y = minitorch.rand((batch_size, size, size), backend=backend)
-    z = x @ y
+    z = x @ y # type: ignore # noqa: F841
 
 
 if __name__ == "__main__":
