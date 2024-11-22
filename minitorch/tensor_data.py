@@ -209,16 +209,13 @@ class TensorData:
         if isinstance(index, tuple):
             aindex = array(index)
 
-        shape = self.shape
-        if len(shape) == 0 and len(aindex) != 0:
-            shape = (1,)
         if aindex.shape[0] != len(self.shape):
-            raise IndexingError(f"Idx {aindex} must be size of {self.shape}.")
+            raise IndexingError(f"Idx {aindex} should be size of {self.shape}.")
         for i, ind in enumerate(aindex):
             if ind >= self.shape[i]:
-                raise IndexingError(f"Idx {aindex} out of range {self.shape}.")
+                raise IndexingError(f"Idx {aindex} is out of range {self.shape}.")
             if ind < 0:
-                raise IndexingError(f"Negative idx for {aindex} is not supported.")
+                raise IndexingError(f"-ve idx for {aindex} is not supported.")
 
         return index_to_position(array(index), self._strides)
 

@@ -480,17 +480,33 @@ def _tensor_matrix_multiply(
     # TODO: Implement for Task 3.4.
     accumulator = 0.0
     for start in range(0, a_shape[2], BLOCK_DIM):
+        # Calculate the global column index in the current block for matrix 'a'
         k = start + local_col
+        # Check if the row index 'row' and column index 'k' are within bounds for matrix 'a'
+        # (a has shape [batch, row, k])
         if a_shape[1]>row and a_shape[2]>k:
+            # Load the value from global memory of 'a_storage' into shared memory 'a_shared'
+            # Calculate the absolute index using batch and strides
             a_shared[local_row, local_col] = a_storage[batch*a_batch_stride + row*a_strides[1] + k*a_strides[2]]
+        # Calculate the global row index in the current block for matrix 'b'
         k = start + local_row
+        # Check if the column index 'col' and row index 'k' are within bounds for matrix 'b'
+        # (b has shape [batch, k, col])
         if b_shape[2]>col and b_shape[1]>k:
+            # Load the value from global memory of 'b_storage' into shared memory 'b_shared'
+            # Calculate the absolute index using batch and strides
             b_shared[local_row, local_col] = b_storage[batch*b_batch_stride + col*b_strides[2] + k*b_strides[1]]
+        # Synchronize all threads to ensure shared memory is updated before computation
         cuda.syncthreads()
+
+        # Perform the matrix multiplication for the current block
         for i in range(BLOCK_DIM):
+            # Ensure the global column index 'start + i' is within bounds for matrix 'a'
             if( start + i ) < a_shape[2]:
+                # Accumulate the product of corresponding elements from 'a_shared' and 'b_shared'
                 accumulator += a_shared[local_row, i] * b_shared[i, local_col]
     if row < out_shape[1] and col < out_shape[2]:
+        # Store the result at the calculated absolute position in 'out' using batch and strides
         out[batch*out_strides[0] + row*out_strides[1] + col*out_strides[2]] = accumulator
 
 
