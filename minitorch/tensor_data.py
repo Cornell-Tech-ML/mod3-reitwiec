@@ -205,9 +205,10 @@ class TensorData:
 
     def index(self, index: Union[int, UserIndex]) -> int:
         """Convert index to position."""
+
         if isinstance(index, int):
             aindex: Index = array([index])
-        if isinstance(index, tuple):
+        else: #tuple
             aindex = array(index)
 
         if aindex.shape[0] != len(self.shape):
