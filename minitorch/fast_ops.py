@@ -19,7 +19,7 @@ if TYPE_CHECKING:
     from typing import Callable, Optional
 
     from .tensor import Tensor
-    from .tensor_data import Index, Shape, Storage, Strides
+    from .tensor_data import Shape, Storage, Strides
 
 # TIP: Use `NUMBA_DISABLE_JIT=1 pytest tests/ -m task3_1` to run these tests without JIT.
 
@@ -30,7 +30,7 @@ Fn = TypeVar("Fn")
 
 
 def njit(fn: Fn, **kwargs: Any) -> Fn:
-    """numba jit function implementation"""
+    """Numba jit function implementation"""
     return _njit(inline="always", **kwargs)(fn)  # type: ignore
 
 
@@ -170,7 +170,11 @@ def tensor_map(
         in_strides: Strides,
     ) -> None:
         # TODO: Implement for Task 3.1.
-        direct_mapping = len(out_strides) != len(in_strides) or (out_strides != in_strides).any() or (out_shape != in_shape).any()
+        direct_mapping = (
+            len(out_strides) != len(in_strides)
+            or (out_strides != in_strides).any()
+            or (out_shape != in_shape).any()
+        )
         if direct_mapping:
             for i in prange(len(out)):
                 out_idx = np.empty(MAX_DIMS, np.int32)
@@ -223,7 +227,14 @@ def tensor_zip(
         b_strides: Strides,
     ) -> None:
         # TODO: Implement for Task 3.1.
-        direct_mapping = (len(out_strides) != len(a_strides) or len(out_strides) != len(b_strides) or (out_strides != a_strides).any() or (out_strides != b_strides).any() or (out_shape != a_shape).any() or (out_shape != b_shape).any())
+        direct_mapping = (
+            len(out_strides) != len(a_strides)
+            or len(out_strides) != len(b_strides)
+            or (out_strides != a_strides).any()
+            or (out_strides != b_strides).any()
+            or (out_shape != a_shape).any()
+            or (out_shape != b_shape).any()
+        )
         if direct_mapping:
             for i in prange(len(out)):
                 out_idx = np.empty(MAX_DIMS, np.int32)

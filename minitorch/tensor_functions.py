@@ -137,7 +137,10 @@ class Mul(Function):
         """Computes the derivatives of the multiplication function."""
         # TODO: Implement for Task 2.4.
         (a, b) = ctx.saved_values
-        return (grad_output.f.mul_zip(b, grad_output), grad_output.f.mul_zip(a, grad_output))
+        return (
+            grad_output.f.mul_zip(b, grad_output),
+            grad_output.f.mul_zip(a, grad_output),
+        )
 
 
 class Sigmoid(Function):

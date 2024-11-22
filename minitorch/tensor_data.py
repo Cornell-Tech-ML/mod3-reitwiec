@@ -16,7 +16,8 @@ MAX_DIMS = 32
 
 
 class IndexingError(RuntimeError):
-    "Exception raised for indexing errors."
+    """Exception raised for indexing errors."""
+
     pass
 
 
@@ -32,18 +33,19 @@ UserStrides: TypeAlias = Sequence[int]
 
 
 def index_to_position(index: Index, strides: Strides) -> int:
-    """
-    Converts a multidimensional tensor `index` into a single-dimensional position in
+    """Converts a multidimensional tensor `index` into a single-dimensional position in
     storage based on strides.
 
     Args:
+    ----
         index : index tuple of ints
         strides : tensor strides
 
     Returns:
+    -------
         Position in storage
-    """
 
+    """
     # TODO: Implement for Task 2.1.
     position = 0
     for ind, stride in zip(index, strides):
@@ -52,13 +54,13 @@ def index_to_position(index: Index, strides: Strides) -> int:
 
 
 def to_index(ordinal: int, shape: Shape, out_index: OutIndex) -> None:
-    """
-    Convert an `ordinal` to an index in the `shape`.
+    """Convert an `ordinal` to an index in the `shape`.
     Should ensure that enumerating position 0 ... size of a
     tensor produces every index exactly once. It
     may not be the inverse of `index_to_position`.
 
     Args:
+    ----
         ordinal: ordinal position to convert.
         shape : tensor shape.
         out_index : return index corresponding to position.
@@ -75,21 +77,23 @@ def to_index(ordinal: int, shape: Shape, out_index: OutIndex) -> None:
 def broadcast_index(
     big_index: Index, big_shape: Shape, shape: Shape, out_index: OutIndex
 ) -> None:
-    """
-    Convert a `big_index` into `big_shape` to a smaller `out_index`
+    """Convert a `big_index` into `big_shape` to a smaller `out_index`
     into `shape` following broadcasting rules. In this case
     it may be larger or with more dimensions than the `shape`
     given. Additional dimensions may need to be mapped to 0 or
     removed.
 
     Args:
+    ----
         big_index : multidimensional index of bigger tensor
         big_shape : tensor shape of bigger tensor
         shape : tensor shape of smaller tensor
         out_index : multidimensional index of smaller tensor
 
     Returns:
+    -------
         None
+
     """
     # TODO: Implement for Task 2.2.
     for i, s in enumerate(shape):
@@ -101,18 +105,21 @@ def broadcast_index(
 
 
 def shape_broadcast(shape1: UserShape, shape2: UserShape) -> UserShape:
-    """
-    Broadcast two shapes to create a new union shape.
+    """Broadcast two shapes to create a new union shape.
 
     Args:
+    ----
         shape1 : first shape
         shape2 : second shape
 
     Returns:
+    -------
         broadcasted shape
 
     Raises:
+    ------
         IndexingError : if cannot broadcast
+
     """
     # TODO: Implement for Task 2.2.
     a, b = shape1, shape2
@@ -129,9 +136,9 @@ def shape_broadcast(shape1: UserShape, shape2: UserShape) -> UserShape:
         else:
             c_rev[i] = max(a_rev[i], b_rev[i])
             if a_rev[i] != c_rev[i] and a_rev[i] != 1:
-                raise IndexingError(f'Broadcast failure {a} {b}')
+                raise IndexingError(f"Broadcast failure {a} {b}")
             if b_rev[i] != c_rev[i] and b_rev[i] != 1:
-                raise IndexingError(f'Broadcast failure {a} {b}')
+                raise IndexingError(f"Broadcast failure {a} {b}")
     return tuple(reversed(c_rev))
 
 
@@ -185,11 +192,12 @@ class TensorData:
             self._storage = numba.cuda.to_device(self._storage)
 
     def is_contiguous(self) -> bool:
-        """
-        Check that the layout is contiguous, i.e. outer dimensions have bigger strides than inner dimensions.
+        """Check that the layout is contiguous, i.e. outer dimensions have bigger strides than inner dimensions.
 
-        Returns:
+        Returns
+        -------
             bool : True if contiguous
+
         """
         last = 1e9
         for stride in self._strides:
@@ -205,10 +213,9 @@ class TensorData:
 
     def index(self, index: Union[int, UserIndex]) -> int:
         """Convert index to position."""
-
         if isinstance(index, int):
             aindex: Index = array([index])
-        else: #tuple
+        else:  # tuple
             aindex = array(index)
 
         if aindex.shape[0] != len(self.shape):
@@ -247,14 +254,16 @@ class TensorData:
         return (self._storage, self._shape, self._strides)
 
     def permute(self, *order: int) -> TensorData:
-        """
-        Permute the dimensions of the tensor.
+        """Permute the dimensions of the tensor.
 
         Args:
+        ----
             order (list): a permutation of the dimensions
 
         Returns:
+        -------
             New `TensorData` with the same storage and a new dimension order.
+
         """
         assert list(sorted(order)) == list(
             range(len(self.shape))

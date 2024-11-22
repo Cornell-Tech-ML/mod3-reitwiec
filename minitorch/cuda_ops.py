@@ -29,13 +29,13 @@ FakeCUDAKernel = Any
 Fn = TypeVar("Fn")
 
 
-def device_jit(fn: Fn, **kwargs:Any) -> Fn:
+def device_jit(fn: Fn, **kwargs: Any) -> Fn:
     """Device jit function"""
     return _jit(device=True, **kwargs)(fn)  # type: ignore
 
 
-def jit(fn:Fn, **kwargs:Any) -> FakeCUDAKernel:
-    """jit function"""
+def jit(fn: Fn, **kwargs: Any) -> FakeCUDAKernel:
+    """Jit function"""
     return _jit(**kwargs)(fn)  # type: ignore
 
 
@@ -282,7 +282,7 @@ def _sum_practice(out: Storage, a: Storage, size: int) -> None:
         if pos % (stride * 2) == 0:
             cache[pos] += cache[pos + stride]
             cuda.syncthreads()
-        stride *=2
+        stride *= 2
     if pos == 0:
         out[cuda.blockIdx.x] = cache[0]
 
@@ -339,7 +339,7 @@ def tensor_reduce(
         cache[pos] = reduce_value
         if out_pos >= out_size:
             return
-        
+
         to_index(out_pos, out_shape, out_index)
         dim = a_shape[reduce_dim]
         out_index[reduce_dim] = out_index[reduce_dim] * BLOCK_DIM + pos
@@ -349,7 +349,7 @@ def tensor_reduce(
             cuda.syncthreads()
             stride = 1
             while stride < BLOCK_DIM:
-                if pos % (stride*2) == 0:
+                if pos % (stride * 2) == 0:
                     cache[pos] = fn(cache[pos], cache[pos + stride])
                     cuda.syncthreads()
                 stride *= 2
@@ -400,22 +400,22 @@ def _mm_practice(out: Storage, a: Storage, b: Storage, size: int) -> None:
     if row >= size or col >= size:
         return
 
-    block_a[row, col] = a[row*size + col]
-    block_b[row, col] = b[row*size + col]
+    block_a[row, col] = a[row * size + col]
+    block_b[row, col] = b[row * size + col]
     cuda.syncthreads()
 
     accumulator = 0.0
     for i in range(size):
         accumulator += block_a[row, i] * block_b[i, col]
 
-    out[row*size + col] = accumulator
+    out[row * size + col] = accumulator
 
 
 jit_mm_practice = jit(_mm_practice)
 
 
 def mm_practice(a: Tensor, b: Tensor) -> TensorData:
-    """mn practice function implementation"""
+    """Mn practice function implementation"""
     (size, _) = a.shape
     threadsperblock = (THREADS_PER_BLOCK, THREADS_PER_BLOCK)
     blockspergrid = 1
@@ -484,30 +484,36 @@ def _tensor_matrix_multiply(
         k = start + local_col
         # Check if the row index 'row' and column index 'k' are within bounds for matrix 'a'
         # (a has shape [batch, row, k])
-        if a_shape[1]>row and a_shape[2]>k:
+        if a_shape[1] > row and a_shape[2] > k:
             # Load the value from global memory of 'a_storage' into shared memory 'a_shared'
             # Calculate the absolute index using batch and strides
-            a_shared[local_row, local_col] = a_storage[batch*a_batch_stride + row*a_strides[1] + k*a_strides[2]]
+            a_shared[local_row, local_col] = a_storage[
+                batch * a_batch_stride + row * a_strides[1] + k * a_strides[2]
+            ]
         # Calculate the global row index in the current block for matrix 'b'
         k = start + local_row
         # Check if the column index 'col' and row index 'k' are within bounds for matrix 'b'
         # (b has shape [batch, k, col])
-        if b_shape[2]>col and b_shape[1]>k:
+        if b_shape[2] > col and b_shape[1] > k:
             # Load the value from global memory of 'b_storage' into shared memory 'b_shared'
             # Calculate the absolute index using batch and strides
-            b_shared[local_row, local_col] = b_storage[batch*b_batch_stride + col*b_strides[2] + k*b_strides[1]]
+            b_shared[local_row, local_col] = b_storage[
+                batch * b_batch_stride + col * b_strides[2] + k * b_strides[1]
+            ]
         # Synchronize all threads to ensure shared memory is updated before computation
         cuda.syncthreads()
 
         # Perform the matrix multiplication for the current block
         for i in range(BLOCK_DIM):
             # Ensure the global column index 'start + i' is within bounds for matrix 'a'
-            if( start + i ) < a_shape[2]:
+            if (start + i) < a_shape[2]:
                 # Accumulate the product of corresponding elements from 'a_shared' and 'b_shared'
                 accumulator += a_shared[local_row, i] * b_shared[i, local_col]
     if row < out_shape[1] and col < out_shape[2]:
         # Store the result at the calculated absolute position in 'out' using batch and strides
-        out[batch*out_strides[0] + row*out_strides[1] + col*out_strides[2]] = accumulator
+        out[batch * out_strides[0] + row * out_strides[1] + col * out_strides[2]] = (
+            accumulator
+        )
 
 
 tensor_matrix_multiply = jit(_tensor_matrix_multiply)
