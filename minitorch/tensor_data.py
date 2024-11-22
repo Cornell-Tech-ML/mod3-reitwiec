@@ -209,6 +209,9 @@ class TensorData:
         if isinstance(index, tuple):
             aindex = array(index)
 
+        shape = self.shape
+        if len(shape) == 0 and len(aindex) != 0:
+            shape = (1,)
         if aindex.shape[0] != len(self.shape):
             raise IndexingError(f"Idx {aindex} must be size of {self.shape}.")
         for i, ind in enumerate(aindex):
